@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PDF 工具箱 — 精算文档处理工作台</title>
+<!-- 内联 SVG favicon，避免额外的网络请求 -->
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%232b579a'/%3E%3Ctext x='16' y='22' font-family='Helvetica,Arial' font-size='13' font-weight='bold' fill='%23fff' text-anchor='middle'%3EPDF%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- ===================== 顶部工具栏 ===================== -->
+<header class="toolbar" id="toolbar">
+  <div class="toolbar-brand">
+    <div class="brand-logo">PDF</div>
+    <div class="brand-text">
+      <strong>PDF 工具箱</strong>
+      <span id="fileNameLabel">未打开文件</span>
+    </div>
+  </div>
+
+  <nav class="toolbar-actions" id="toolbarActions">
+
+    <!-- 分组：文件操作 -->
+    <div class="btn-group" data-group="file">
+      <span class="group-label">文件</span>
+      <button class="tbtn" data-action="open" title="打开本地 PDF 文件">
+        <svg viewBox="0 0 24 24"><path d="M10 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-8l-2-2z"/></svg>
+        打开
+      </button>
+      <button class="tbtn" data-action="save" title="导出处理后的 PDF 文件">
+        <svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+        导出
+      </button>
+      <button class="tbtn" data-action="print" title="调用浏览器打印当前 PDF">
+        <svg viewBox="0 0 24 24"><path d="M19 8H5c-1.66 0-3 1.34-3 3v6h4v4h12v-4h4v-6c0-1.66-1.34-3-3-3zm-3 11H8v-5h8v5zm3-7a1 1 0 1 1 0-2 1 1 0 0 1 0 2zm-1-9H6v4h12V3z"/></svg>
+        打印
+      </button>
+    </div>
+
+    <!-- 分组：页面操作 -->
+    <div class="btn-group" data-group="page">
+      <span class="group-label">页面</span>
+      <button class="tbtn" data-action="addPage" title="在指定位置插入空白页，可选页面尺寸">
+        <svg viewBox="0 0 24 24"><path d="M13 7h-2v4H7v2h4v4h2v-4h4v-2h-4V7zm-1-5a10 10 0 1 0 0 20 10 10 0 0 0 0-20z"/></svg>
+        添加页面
+      </button>
+      <button class="tbtn danger" data-action="deletePage" title="删除选中的页面（需确认）">
+        <svg viewBox="0 0 24 24"><path d="M6 19a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
+        删除页面
+      </button>
+      <button class="tbtn" data-action="importPages" title="从另一个 PDF 文件导入指定页面">
+        <svg viewBox="0 0 24 24"><path d="M9 16h6v-6h4l-7-7-7 7h4v6zm-4 2h14v2H5v-2z"/></svg>
+        导入页面
+      </button>
+      <button class="tbtn" data-action="copyPage" title="复制选中的页面到剪贴板">
+        <svg viewBox="0 0 24 24"><path d="M16 1H4a2 2 0 0 0-2 2v14h2V3h12V1zm3 4H8a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2z"/></svg>
+        复制页面
+      </button>
+      <button class="tbtn" data-action="pastePage" title="将剪贴板中的页面粘贴到指定位置">
+        <svg viewBox="0 0 24 24"><path d="M19 2h-4.18C14.4.84 13.3 0 12 0S9.6.84 9.18 2H5a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2zm-7 0a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/></svg>
+        粘贴页面
+      </button>
+      <button class="tbtn" data-action="replacePage" title="用另一个 PDF 的页面替换当前选中页">
+        <svg viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg>
+        替换页面
+      </button>
+      <button class="tbtn" data-action="extractPages" title="将选中的页面另存为新的 PDF 文件">
+        <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
+        提取页面
+      </button>
+      <button class="tbtn" data-action="splitByRange" title="按页码范围分割成多个 PDF 文件">
+        <svg viewBox="0 0 24 24"><path d="M14 4l2.29 2.29-2.88 2.88 1.42 1.42 2.88-2.88L20 10V4h-6zm-4 0H4v6l2.29-2.29 4.71 4.7V20h2v-7.59l5.29 5.3L20 20v-6h-6l2.29-2.29-2.88-2.88 1.42-1.42 2.88 2.88L20 10V4z"/></svg>
+        分割
+      </button>
+      <button class="tbtn" data-action="reorderPages" title="重新排列当前文档的页面顺序（页面拼接）">
+        <svg viewBox="0 0 24 24"><path d="M3 9h14V7H3v2zm0 4h14v-2H3v2zm0 4h14v-2H3v2zm16 0h2v-2h-2v2zm0-10v2h2V7h-2zm0 6h2v-2h-2v2z"/></svg>
+        拼接排序
+      </button>
+      <button class="tbtn" data-action="resizePage" title="调整页面尺寸，支持预设与自定义单位">
+        <svg viewBox="0 0 24 24"><path d="M3 3h8v2H5v6H3V3zm18 18h-8v-2h6v-6h2v8zM3 21v-8h2v6h6v2H3zm18-18v8h-2V5h-6V3h8z"/></svg>
+        页面大小
+      </button>
+      <button class="tbtn" data-action="rotateLeft" title="将选中页面逆时针旋转 90°">
+        <svg viewBox="0 0 24 24"><path d="M7.11 8.53L5.7 7.11C4.8 8.27 4.24 9.61 4.07 11h2.02c.14-.87.49-1.72 1.02-2.47zM6.09 13H4.07c.17 1.39.72 2.73 1.62 3.89l1.41-1.42c-.52-.75-.87-1.59-1.01-2.47zm1.01 5.32c1.16.9 2.51 1.44 3.9 1.61V17.9c-.87-.15-1.71-.49-2.46-1.03L7.1 18.32zM13 4.07V1L8.45 5.55 13 10V6.09c2.84.48 5 2.94 5 5.91s-2.16 5.43-5 5.91v2.02c3.95-.49 7-3.85 7-7.93s-3.05-7.44-7-7.93z"/></svg>
+        左转
+      </button>
+      <button class="tbtn" data-action="rotateRight" title="将选中页面顺时针旋转 90°">
+        <svg viewBox="0 0 24 24"><path d="M15.55 5.55L11 1v3.07C7.06 4.56 4 7.92 4 12s3.05 7.44 7 7.93v-2.02c-2.84-.48-5-2.94-5-5.91s2.16-5.43 5-5.91V10l4.55-4.45zM19.93 11a7.9 7.9 0 0 0-1.62-3.89l-1.42 1.42c.54.75.88 1.6 1.02 2.47h2.02zM13 17.9v2.02c1.39-.17 2.74-.71 3.9-1.61l-1.44-1.44c-.75.54-1.59.89-2.46 1.03zm3.89-2.42l1.42 1.41c.9-1.16 1.45-2.5 1.62-3.89h-2.02c-.14.87-.48 1.72-1.02 2.48z"/></svg>
+        右转
+      </button>
+    </div>
+
+    <!-- 分组：编辑 -->
+    <div class="btn-group" data-group="edit">
+      <span class="group-label">编辑</span>
+      <button class="tbtn" data-action="addText" title="在页面上点击位置添加文字，可设置字体、大小、颜色">
+        <svg viewBox="0 0 24 24"><path d="M5 4v3h5.5v12h3V7H19V4H5z"/></svg>
+        添加文字
+      </button>
+      <button class="tbtn" data-action="addImage" title="在页面上插入图片（PNG / JPG）">
+        <svg viewBox="0 0 24 24"><path d="M21 19V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/></svg>
+        插入图片
+      </button>
+    </div>
+
+    <!-- 分组：其他 -->
+    <div class="btn-group" data-group="other">
+      <span class="group-label">其他</span>
+      <button class="tbtn" data-action="mergePdf" title="合并多个 PDF 文件为一个，可调整顺序">
+        <svg viewBox="0 0 24 24"><path d="M17 3H7a2 2 0 0 0-2 2v4h2V5h10v14H7v-4H5v4a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2zM3 11h8v2H3z"/></svg>
+        合并
+      </button>
+      <button class="tbtn" data-action="splitPdf" title="将 PDF 按每 N 页或按范围拆分为多个文件">
+        <svg viewBox="0 0 24 24"><path d="M14 4h6v6h-2V7.41l-4.29 4.3-1.42-1.42L16.59 6H14V4zM4 14h6v6H8v-2.59l-4.29 4.3-1.42-1.42L6.59 16H4v-2z"/></svg>
+        拆分
+      </button>
+      <button class="tbtn" data-action="compressPdf" title="压缩 PDF 体积，可选低/中/高压缩级别">
+        <svg viewBox="0 0 24 24"><path d="M4 14h6v6H8v-2.59l-3.29 3.3-1.42-1.42L6.59 16H4v-2zm16-4h-6V4h2v2.59l3.29-3.3 1.42 1.42L17.41 8H20v2z"/></svg>
+        压缩
+      </button>
+      <button class="tbtn" data-action="addBookmark" title="为 PDF 添加多级书签（目录大纲）">
+        <svg viewBox="0 0 24 24"><path d="M17 3H7a2 2 0 0 0-2 2v16l7-3 7 3V5a2 2 0 0 0-2-2z"/></svg>
+        书签
+      </button>
+    </div>
+
+  </nav>
+</header>
+
+<!-- ===================== 主体三栏布局 ===================== -->
+<main class="workspace">
+
+  <!-- 左侧：缩略图栏 -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-head">
+      <span class="sidebar-title">页面缩略图</span>
+      <div class="sidebar-tools">
+        <button class="mini-btn" id="selectAllPages" title="全选所有页面">全选</button>
+        <button class="mini-btn" id="clearSelection" title="清空当前选择">清空</button>
+      </div>
+    </div>
+    <div class="thumb-list" id="thumbList">
+      <!-- 缩略图由 app.js 动态渲染 -->
+      <div class="thumb-empty" id="thumbEmpty">
+        <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 7V3.5L18.5 9H13z"/></svg>
+        <p>尚未打开 PDF</p>
+        <button class="btn-primary" data-action="open">打开 PDF 文件</button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- 中间：预览区 -->
+  <section class="viewer" id="viewer">
+    <div class="viewer-toolbar">
+      <div class="viewer-left">
+        <button class="mini-btn" id="prevPage" title="上一页">上一页</button>
+        <span class="page-indicator">
+          <input type="number" id="pageInput" min="1" value="1">
+          <span>/ <b id="pageCount">0</b></span>
+        </span>
+        <button class="mini-btn" id="nextPage" title="下一页">下一页</button>
+      </div>
+      <div class="viewer-right">
+        <button class="mini-btn" id="readModeBtn" title="切换阅读模式">逐页</button>
+        <button class="mini-btn" id="applyEdits" title="将待定编辑写入 PDF 并重新渲染" hidden>应用编辑</button>
+        <button class="mini-btn" id="clearEdits" title="放弃所有待定编辑" hidden>清空编辑</button>
+        <button class="mini-btn" id="zoomOut" title="缩小">－</button>
+        <select id="zoomSelect" title="选择缩放比例">
+          <option value="0.5">50%</option>
+          <option value="0.75">75%</option>
+          <option value="1" selected>100%</option>
+          <option value="1.25">125%</option>
+          <option value="1.5">150%</option>
+          <option value="2">200%</option>
+          <option value="3">300%</option>
+          <option value="fit">适应宽度</option>
+        </select>
+        <button class="mini-btn" id="zoomIn" title="放大">＋</button>
+        <button class="mini-btn" id="toggleSidebar" title="显示 / 隐藏缩略图栏">缩略图</button>
+      </div>
+    </div>
+
+    <div class="canvas-scroll" id="canvasScroll">
+      <div class="canvas-stage" id="canvasStage">
+        <div class="canvas-holder" id="canvasHolder">
+          <canvas id="pdfCanvas"></canvas>
+          <!-- 文字 / 图片编辑覆盖层 -->
+          <div class="edit-layer" id="editLayer"></div>
+        </div>
+        <!-- 连续阅读模式：多页容器 -->
+        <div class="continuous-container" id="continuousContainer" style="display:none;"></div>
+      </div>
+      <div class="viewer-placeholder" id="viewerPlaceholder">
+        <div class="ph-inner">
+          <svg viewBox="0 0 24 24"><path d="M20 2H4a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2zM8.5 12.5l2.5 3.01L14.5 11l4.5 6H5l3.5-4.5z"/></svg>
+          <h2>拖拽 PDF 文件到此处</h2>
+          <p>或点击下方按钮选择文件，全部处理均在浏览器本地完成，文件不会上传</p>
+          <button class="btn-primary lg" data-action="open">选择 PDF 文件</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 右侧：属性面板 -->
+  <aside class="inspector" id="inspector">
+    <div class="inspector-head">文档信息</div>
+    <div class="inspector-body">
+      <div class="info-row"><span>文件名</span><b id="infoName">—</b></div>
+      <div class="info-row"><span>页数</span><b id="infoPages">—</b></div>
+      <div class="info-row"><span>文件大小</span><b id="infoSize">—</b></div>
+      <div class="info-row"><span>页面尺寸</span><b id="infoDimension">—</b></div>
+      <div class="info-row"><span>选中页面</span><b id="infoSelected">—</b></div>
+
+      <div class="inspector-head">当前页属性</div>
+      <div class="info-row"><span>旋转角度</span><b id="infoRotation">0°</b></div>
+      <div class="info-row"><span>旋转状态</span><b id="infoRotationState">0 / 90 / 180 / 270</b></div>
+
+      <div class="inspector-head">快捷操作</div>
+      <div class="quick-grid">
+        <button class="mini-btn" data-action="extractPages" title="提取选中页为新 PDF">提取选中</button>
+        <button class="mini-btn" data-action="copyPage" title="复制选中页">复制</button>
+        <button class="mini-btn" data-action="deletePage" title="删除选中页">删除</button>
+        <button class="mini-btn" data-action="rotateRight" title="顺时针旋转">右转 90°</button>
+      </div>
+      <p class="hint">
+        提示：在缩略图上 <b>单击</b> 选中/取消，<b>Ctrl + 单击</b> 多选，<b>Shift + 单击</b> 范围选择。
+      </p>
+    </div>
+  </aside>
+
+</main>
+
+<!-- ===================== 底部状态栏 ===================== -->
+<footer class="statusbar">
+  <div class="status-left">
+    <span class="status-dot" id="statusDot"></span>
+    <span id="statusText">就绪</span>
+  </div>
+  <div class="status-right">
+    <span>页码：<b id="statusPage">0 / 0</b></span>
+    <span>文件大小：<b id="statusSize">—</b></span>
+    <span>缩放：<b id="statusZoom">100%</b></span>
+    <span class="status-copyright">@//0.0.7.234/ ZHANGXINGYU 版权所有 | PDF工具箱 v1.0.0</span>
+  </div>
+</footer>
+
+<!-- ===================== 全局隐藏输入 ===================== -->
+<input type="file" id="fileInput" accept="application/pdf,.pdf" hidden>
+<input type="file" id="imageInput" accept="image/png,image/jpeg" hidden>
+
+<!-- ===================== 通用弹窗容器 ===================== -->
+<div class="modal-mask" id="modalMask" hidden>
+  <div class="modal" id="modalBox" role="dialog" aria-modal="true">
+    <div class="modal-head">
+      <h3 id="modalTitle">标题</h3>
+      <button class="modal-close" id="modalClose" title="关闭">×</button>
+    </div>
+    <div class="modal-body" id="modalBody"><!-- 动态内容 --></div>
+    <div class="modal-foot" id="modalFoot">
+      <button class="btn-ghost" id="modalCancel">取消</button>
+      <button class="btn-primary" id="modalConfirm">确定</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== 加载遮罩 ===================== -->
+<div class="loading-mask" id="loadingMask" hidden>
+  <div class="loading-box">
+    <div class="spinner"></div>
+    <p id="loadingText">处理中…</p>
+    <div class="progress-track"><div class="progress-bar" id="progressBar"></div></div>
+  </div>
+</div>
+
+<!-- ===================== Toast 容器 ===================== -->
+<div class="toast-wrap" id="toastWrap"></div>
+
+<!-- ===================== CDN 外部库 ===================== -->
+<script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+<!-- fontkit：pdf-lib 嵌入自定义字体（中文）所必需 -->
+<script src="https://cdn.jsdelivr.net/npm/@pdf-lib/fontkit@1.1.1/dist/fontkit.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
+<!-- docx 8.x 的浏览器构建位于 build/index.umd.js（build/index.js 并不存在） -->
+<script src="https://cdn.jsdelivr.net/npm/docx@8.5.0/build/index.umd.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/pptxgenjs@3.12.0/dist/pptxgen.bundle.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
+
+<!-- ===================== 应用脚本 ===================== -->
+<script src="js/pdf-ops.js"></script>
+<!-- converters.js：转换功能已下线，但 renderPageDataUrl 被打印功能依赖，勿删 -->
+<script src="js/converters.js"></script>
+<script src="js/app.js"></script>
+
+</body>
+</html>
