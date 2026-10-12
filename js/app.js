@@ -1237,15 +1237,17 @@
         $('ipFile').addEventListener('change', function () {
           var f = this.files && this.files[0];
           if (!f) { $('ipInfo').innerHTML = ''; return; }
+          // 先缓存字节流（必须在持有 buf 的作用域内赋值）
           PdfOps.readAsArrayBuffer(f).then(function (buf) {
+            $('ipFile').__buf = buf;
             return PdfOps.loadDocument(buf);
           }).then(function (doc) {
             var n = doc.getPageCount();
             $('ipInfo').innerHTML = '<div class="note">源文件《' + escapeHtml(f.name) + '》共 ' + n + ' 页。</div>';
             if (!$('ipRange').value) $('ipRange').value = '1-' + n;
             $('ipFile').dataset.pages = String(n);
-            $('ipFile').__buf = buf;
           }).catch(function (err) {
+            $('ipFile').__buf = null;
             $('ipInfo').innerHTML = '<div class="note warn">' + escapeHtml(err.message) + '</div>';
           });
         });
